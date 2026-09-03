@@ -25,19 +25,32 @@ export class UsersService {
   
   
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll():Promise<User[]> {
+    return await this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+    const updatedUser = this.userRepository.merge(user, updateUserDto);
+    return await this.userRepository.save(updatedUser);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+    await this.userRepository.remove(user);
   }
 }
